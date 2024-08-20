@@ -30,7 +30,7 @@ Recommended power supply for 12 boards with a single splitter = 24v (DC) 13 Amps
 Here python's built in socket module has been used to send UDP packets over a network. RGBW LED values are mapped to different ports based on the data structure of colour message. Attempts have been made to make this scalable by taking an object oriented and modular approach; ensuring that multiple splitters could be used and synchronised. 
 
 ## LED Test Script 
-<a href="./scripts/test.py">Control Script</a>
+<a href="./scripts/test.py">Test Script</a>
 
 Unittest module has been used to instantiate the LEDboard class and run two test methods.
 One method simulates a single splitter using 4 channels with 3 boards chained in each channel.
