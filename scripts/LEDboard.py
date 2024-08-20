@@ -2,7 +2,7 @@ import socket
 from time import sleep
 
 class LEDBoardControllerUDP:
-    def __init__(self, splitter_ip_base='192.168.1.', splitter_ids=[128], udp_port=16661):
+    def __init__(self, splitter_ip_base='192.168.1.', splitter_ids=[128], udp_port=16661, debug=False):
         """
         Initializes the LEDBoardControllerUDP with the given parameters.
         
@@ -12,6 +12,7 @@ class LEDBoardControllerUDP:
         """
         self.splitter_addresses = [(splitter_ip_base + str(splitter_id), udp_port) for splitter_id in splitter_ids]
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.debug = debug
         
     def send_packet(self, splitter_id, port_number, rgbw_data, num_of_ports=4, ports_in_pkt=1, start_frame=False):
         """
@@ -27,11 +28,13 @@ class LEDBoardControllerUDP:
         format_byte = 0x00  # initial break DMX style
         flags = 0x80 if start_frame else 0x00 # start frame flag if start_frame is True else 0
         port_byte = port_number 
-        nbytes = len(rgbw_data) # Number of bytes in the data
-        # print(f"Data length for port {port_number}: {nbytes} bytes") #Debugging
+        nbytes = len(rgbw_data) # Number of bytes in the data        
         nports = num_of_ports # Number of ports in use on the splitter
         portsinpkt = ports_in_pkt # Number of ports covered by this packet
         
+        if self.debug:
+            print(f"Sending packet to splitter {splitter_id}, port {port_number}")
+            
         packet = [
             0x02,  # Packet start byte
             format_byte,
@@ -43,7 +46,9 @@ class LEDBoardControllerUDP:
             portsinpkt
         ]
         packet.extend(rgbw_data)
-        # print(f"Sending packet {packet} to splitter {splitter_id}, port {port_number}") Debugging
+        
+        if self.debug:
+            print(f"Sending packet {packet} to splitter {splitter_id}, port {port_number}") # Debugging
         splitter_address = self.splitter_addresses[splitter_id - 1]
         try:
             self.sock.sendto(bytearray(packet), splitter_address)
@@ -82,7 +87,8 @@ class LEDBoardControllerUDP:
                 else:
                     raise ValueError(f"Invalid color format for port {port_number}: {color}")
             data_length = len(rgbw_data)
-            # print(f"Data length for port {port_number}: {data_length} bytes") #Debugging
+            if self.debug:
+                print(f"Data length for port {port_number}: {data_length} bytes") #Debugging
             self.send_packet(splitter_id, port_number, rgbw_data, start_frame=True)
         self.broadcast_sync()
 
